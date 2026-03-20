@@ -40,6 +40,27 @@
   }
   .filters-inner { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
 
+
+  /* NAV */
+  nav {
+    background: white;
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo svg { width: 42px; height: 42px; }
+  .logo-text { font-size: 26px; font-weight: 900; color: var(--blue); }
+  .logo-text span { color: var(--red); }
+  nav ul { list-style: none; display: flex; gap: 32px; }
+  nav ul a { text-decoration: none; color: var(--text); font-size: 14px; font-weight: 500; transition: color .2s; }
+  nav ul a:hover { color: var(--red); }
+  .nav-cta { background: var(--red); color: white !important; padding: 10px 22px; border-radius: 24px; font-weight: 700 !important; }
+  .nav-cta:hover { background: var(--red-dark) !important; color: white !important; }
+  
   /* Search */
   .search-wrap { position: relative; }
   .search-wrap input {
