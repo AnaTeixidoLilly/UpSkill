@@ -40,55 +40,6 @@
   }
   .filters-inner { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
 
-
-  /* NAV */
-  nav {
-    background: white;
-    padding: 16px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    position: sticky; top: 0; z-index: 100;
-  }
-  .logo { display: flex; align-items: center; gap: 12px; }
-  .logo svg { width: 42px; height: 42px; }
-  .logo-text { font-size: 26px; font-weight: 900; color: var(--blue); }
-  .logo-text span { color: var(--red); }
-  nav ul { list-style: none; display: flex; gap: 32px; }
-  nav ul a { text-decoration: none; color: var(--text); font-size: 14px; font-weight: 500; transition: color .2s; }
-  nav ul a:hover { color: var(--red); }
-  .nav-cta { background: var(--red); color: white !important; padding: 10px 22px; border-radius: 24px; font-weight: 700 !important; }
-  .nav-cta:hover { background: var(--red-dark) !important; color: white !important; }
-
-  <!-- NAV -->
-<nav>
-  <div class="logo">
-    <svg viewBox="0 0 42 42" xmlns="http://www.w3.org/2000/svg">
-      <line x1="21" y1="2" x2="21" y2="10" stroke="#CC0022" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="21" cy="0" r="4" fill="#CC0022"/>
-      <rect x="5" y="10" width="32" height="30" rx="10" fill="#FF9080"/>
-      <circle cx="14" cy="24" r="6" fill="white"/>
-      <circle cx="28" cy="24" r="6" fill="white"/>
-      <circle cx="14" cy="24" r="3.5" fill="#2080CC"/>
-      <circle cx="28" cy="24" r="3.5" fill="#2080CC"/>
-      <circle cx="15.5" cy="22.5" r="1.5" fill="white"/>
-      <circle cx="29.5" cy="22.5" r="1.5" fill="white"/>
-      <path d="M 16 33 Q 21 38 26 33" stroke="#CC0022" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <rect x="1" y="18" width="5" height="10" rx="2.5" fill="#E86050"/>
-      <rect x="36" y="18" width="5" height="10" rx="2.5" fill="#E86050"/>
-    </svg>
-    <span class="logo-text"><span>Up</span>Skill</span>
-  </div>
-  <ul>
-    <li><a href="#">Inicio</a></li>
-    <li><a href="#">Cursos</a></li>
-    <li><a href="#">Niveles</a></li>
-    <li><a href="#">Sobre nosotros</a></li>
-    <li><a href="#" class="nav-cta">Empezar gratis</a></li>
-  </ul>
-</nav>
-  
   /* Search */
   .search-wrap { position: relative; }
   .search-wrap input {
