@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Hub — Ingeniería Industrial</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f8fafc;
+    --bg3: #f1f5f9;
+    --border: #e8edf3;
+    --text: #0f172a;
+    --text2: #64748b;
+    --text3: #94a3b8;
+    --accent: #2563eb;
+    --green: #10b981;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  .header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+  }
+  .header-inner { max-width: 800px; margin: 0 auto; }
+  .header h1 { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.4px; }
+  .header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  /* FILTERS */
+  .filters-wrap {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .filters-inner { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+
+  /* Search */
+  .search-wrap { position: relative; }
+  .search-wrap input {
+    width: 100%; padding: 10px 14px 10px 38px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text); font-size: 14px; outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .search-wrap input::placeholder { color: var(--text3); }
+  .search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); background: #fff; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; pointer-events: none; }
+
+  /* Profile tabs */
+  .profile-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .p-tab {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 20px;
+    border: 1.5px solid var(--border); background: #fff;
+    cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text2);
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .p-tab:hover { border-color: #cbd5e1; color: var(--text); }
+  .p-tab.active { border-color: transparent; color: #fff; }
+  .p-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* Tag pills */
+  .tag-pills { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .tag-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-right: 2px; }
+  .t-pill {
+    padding: 4px 12px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: #fff; cursor: pointer; font-size: 12px; font-weight: 500;
+    color: var(--text2); transition: all 0.15s;
+  }
+  .t-pill:hover { border-color: #cbd5e1; color: var(--text); }
+  .t-pill.active { background: #f0f4ff; border-color: #bfcfff; color: var(--accent); font-weight: 600; }
+
+  /* MAIN */
+  .main { max-width: 800px; margin: 0 auto; padding: 24px 32px 80px; }
+
+  /* Count */
+  .count-bar { font-size: 13px; color: var(--text2); margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .count-bar strong { color: var(--text); }
+
+  /* PROMPT LIST */
+  .prompt-list { display: flex; flex-direction: column; gap: 8px; }
+
+  /* CARD */
+  .card {
+    background: #fff; border: 1.5px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .card:hover { border-color: #cbd5e1; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .card.open { border-color: var(--card-accent, var(--accent)); box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
+
+  .card-head {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 20px; cursor: pointer;
+  }
+  .card-stripe { width: 3px; min-width: 3px; height: 40px; border-radius: 3px; }
+  .card-info { flex: 1; min-width: 0; }
+  .card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .c-profile { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .c-tag {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+  }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.35; }
+  .card-desc { font-size: 13px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+  .card-arrow { font-size: 12px; color: var(--text3); margin-left: 8px; flex-shrink: 0; transition: transform 0.2s; }
+  .card.open .card-arrow { transform: rotate(180deg); }
+
+  /* CARD BODY */
+  .card-body { border-top: 1px solid var(--border); padding: 20px; background: var(--bg2); }
+
+  .vars-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; align-items: center; }
+  .vars-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px; }
+  .v-chip {
+    padding: 3px 9px; background: #fffbeb; border: 1px solid #fde68a;
+    color: #92400e; font-size: 11px; font-weight: 600; border-radius: 6px; font-family: monospace;
+  }
+
+  .prompt-box {
+    background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 14px 16px; font-size: 12.5px; color: #475569;
+    white-space: pre-wrap; line-height: 1.75; font-family: 'Menlo','Consolas',monospace;
+    max-height: 300px; overflow-y: auto; margin-bottom: 12px;
+  }
+  .prompt-box::-webkit-scrollbar { width: 4px; }
+  .prompt-box::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+  .v-highlight { color: #b45309; font-weight: 600; }
+
+  .btn-copy {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px; border-radius: var(--radius-sm);
+    background: var(--text); color: #fff;
+    font-size: 13px; font-weight: 600; border: none; cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-copy:hover { background: #1e293b; transform: translateY(-1px); }
+  .btn-copy.ok { background: var(--green); }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 60px 20px; color: var(--text3); }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+  /* FOOTER */
+  footer { text-align: center; font-size: 12px; color: var(--text3); padding: 24px 32px; border-top: 1px solid var(--border); }
+
+  @media(max-width:600px) {
+    .header, .filters-wrap { padding: 16px; }
+    .main { padding: 20px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <h1>Librería de Prompts</h1>
+    <p>Prompts listos para usar con Copilot o Claude · Copia, rellena los campos y listo</p>
+  </div>
+</div>
+
+<div class="filters-wrap">
+  <div class="filters-inner">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search" placeholder="Buscar prompt..." oninput="render()">
+    </div>
+    <div class="profile-tabs" id="profile-tabs"></div>
+    <div class="tag-pills" id="tag-pills"></div>
+  </div>
+</div>
+
+<main class="main">
+  <div class="count-bar" id="count"></div>
+  <div class="prompt-list" id="list"></div>
+</main>
+
+<footer>Librería de Prompts · Tech@Lilly · v1.0</footer>
+
+<script>
+const PROFILES = [
+  { id:"Todos",                  label:"Todos",         color:"#64748b" },
+  { id:"Generales",               label:"Generales",       color:"#8b5cf6" },
+  { id:"Procesos",               label:"Procesos",       color:"#2563eb" },
+  { id:"Calidad",                label:"Calidad",        color:"#10b981" },
+  { id:"Mantenimiento",          label:"Mantenimiento",  color:"#f59e0b" },
+  { id:"Lean / Mejora Continua", label:"Lean / Mejora",  color:"#8b5cf6" },
+  { id:"Proyectos",              label:"Proyectos",      color:"#ef4444" },
+  { id:"Supply Chain",           label:"Supply Chain",   color:"#06b6d4" },
+  { id:"Validación Sistemas",           label:"Validación Sistemas",   color:"#06b6d4" },
+];
+const TAGS = ["Todos","Análisis","Documentación","Causa Raíz","Planificación","Comunicación"];
+const TAG_STYLES = {
+  "Análisis":      { bg:"#eff6ff", color:"#1d4ed8" },
+  "Documentación": { bg:"#f5f3ff", color:"#6d28d9" },
+  "Causa Raíz":    { bg:"#fef2f2", color:"#b91c1c" },
+  "Planificación": { bg:"#fffbeb", color:"#b45309" },
+  "Comunicación":  { bg:"#fff7ed", color:"#c2410c" },
+};
+
+const PROMPTS = [
+  { id:1, profile:"Procesos", tag:"Causa Raíz",
+    title:"Análisis causa raíz de desviación de proceso",
+    desc:"Estructura un análisis 5 Whys o Ishikawa a partir de una incidencia en línea.",
+    vars:["DESCRIBE EL PROBLEMA","LÍNEA AFECTADA","TURNO"],
+    prompt:`Actúa como un ingeniero de procesos senior en una planta de empaquetado industrial.
+He detectado la siguiente desviación en línea: [DESCRIBE EL PROBLEMA].
+Línea afectada: [LÍNEA AFECTADA] | Turno: [TURNO]
+
+Por favor:
+1. Ayúdame a estructurar un análisis de causa raíz con la metodología 5 Whys.
+2. Propón al menos 3 hipótesis de causa probable organizadas por categoría:
+   → Máquina | Material | Método | Mano de obra | Entorno
+3. Indica qué datos o mediciones necesito recoger para validar cada hipótesis.
+4. Estima el impacto potencial si no se actúa en las próximas 24h.
+
+Sé específico para entorno de empaquetado industrial. Responde en formato estructurado.`},
+
+  { id:2, profile:"Procesos", tag:"Documentación",
+    title:"Redactar procedimiento de cambio de formato (SOP)",
+    desc:"Genera un borrador de SOP estructurado a partir de notas técnicas.",
+    vars:["NOMBRE FORMATO","NÚMERO LÍNEA","NOTAS DEL PROCESO"],
+    prompt:`Eres un experto en redacción de procedimientos técnicos industriales.
+Necesito documentar el cambio de formato [NOMBRE FORMATO] en la línea [NÚMERO LÍNEA].
+
+Notas del proceso:
+[NOTAS DEL PROCESO]
+
+Redacta un SOP completo con esta estructura:
+1. OBJETIVO Y ALCANCE
+2. REFERENCIAS Y DOCUMENTOS RELACIONADOS
+3. HERRAMIENTAS Y MATERIALES NECESARIOS
+4. PASOS DE EJECUCIÓN (numerados, con criterio de verificación en cada paso)
+5. PUNTOS CRÍTICOS DE SEGURIDAD
+6. CRITERIOS DE VALIDACIÓN antes de reanudar producción
+7. REGISTRO Y TRAZABILIDAD
+
+Lenguaje técnico, directo y sin ambigüedades.`},
+
+  { id:3, profile:"Procesos", tag:"Análisis",
+    title:"Interpretación de datos de parámetros de proceso",
+    desc:"Analiza una tabla de parámetros e identifica correlaciones, tendencias y anomalías.",
+    vars:["PARÁMETRO","PERIODO","LÍNEA","DATOS EN TABLA"],
+    prompt:`Actúa como ingeniero de procesos especialista en análisis de datos de producción.
+
+Parámetro: [PARÁMETRO] | Periodo: [PERIODO] | Línea: [LÍNEA]
+
+Datos:
+[DATOS EN TABLA]
+
+Por favor:
+1. Identifica tendencias, anomalías y valores fuera de límites de control.
+2. Detecta correlaciones entre variables y resultados de calidad o eficiencia.
+3. Resume los hallazgos clave en 3-5 puntos ordenados por criticidad.
+4. Propón 2-3 acciones de mejora con impacto esperado estimado.
+5. Indica si los datos son suficientes o qué información adicional sería necesaria.`},
+
+  { id:4, profile:"Calidad", tag:"Documentación",
+    title:"Redactar informe de no conformidad — Metodología 8D",
+    desc:"Genera un informe 8D completo a partir de los hechos de una incidencia de calidad.",
+    vars:["DESCRIPCIÓN DEFECTO","LÍNEA / TURNO","CANTIDAD AFECTADA","CLIENTE","ACCIONES INMEDIATAS"],
+    prompt:`Eres un ingeniero de calidad experto en metodología 8D aplicada a industria de empaquetado.
+
+No conformidad:
+- Defecto: [DESCRIPCIÓN DEFECTO]
+- Línea / Turno: [LÍNEA / TURNO]
+- Cantidad afectada: [CANTIDAD AFECTADA]
+- Cliente (si aplica): [CLIENTE]
+- Acciones inmediatas ya tomadas: [ACCIONES INMEDIATAS]
+
+Redacta el informe 8D completo:
+D1 — Equipo de trabajo propuesto (roles)
+D2 — Descripción del problema en formato 5W2H
+D3 — Acciones de contención implementadas
+D4 — Análisis de causa raíz
+D5 — Acciones correctivas permanentes
+D6 — Plan de implementación con fechas
+D7 — Acciones preventivas
+D8 — Cierre y lecciones aprendidas
+
+Donde falte información, indica exactamente qué datos hay que completar.`},
+
+  { id:5, profile:"Calidad", tag:"Análisis",
+    title:"Preparación de auditoría interna",
+    desc:"Genera checklist de puntos críticos, evidencias requeridas y preguntas difíciles.",
+    vars:["ÁREA A AUDITAR","NORMA O ESTÁNDAR"],
+    prompt:`Actúa como auditor experto en sistemas de calidad para industria de empaquetado.
+
+Área: [ÁREA A AUDITAR] | Norma: [NORMA O ESTÁNDAR — ej: ISO 9001, BRC, IFS]
+
+Prepara el plan de auditoría con:
+1. TOP 15 puntos críticos que un auditor externo revisaría con más atención.
+2. Para cada punto: evidencia documental que debe estar disponible.
+3. 5 preguntas difíciles del auditor + respuesta modelo recomendada.
+4. Errores más frecuentes en auditorías de esta área.
+5. Semáforo de preparación: qué suele estar bien / qué suele fallar / qué es crítico.`},
+
+  { id:6, profile:"Calidad", tag:"Comunicación",
+    title:"Respuesta técnica a reclamación de cliente",
+    desc:"Redacta una respuesta formal y técnica a una queja de cliente.",
+    vars:["NOMBRE CLIENTE","TEXTO RECLAMACIÓN"],
+    prompt:`Eres responsable de calidad de una planta de empaquetado industrial.
+
+Cliente: [NOMBRE CLIENTE]
+Reclamación: "[TEXTO RECLAMACIÓN]"
+
+Redacta una respuesta formal con:
+1. Acuse de recibo y agradecimiento.
+2. Resumen objetivo de la investigación interna.
+3. Causa raíz identificada (o fecha de cierre si sigue abierta).
+4. Acciones correctivas con fechas concretas.
+5. Medidas preventivas para evitar recurrencia.
+6. Cierre con mensaje de confianza y compromiso.
+
+Tono: técnico, honesto, profesional. Máximo 400 palabras.`},
+
+  { id:7, profile:"Mantenimiento", tag:"Causa Raíz",
+    title:"Diagnóstico de avería repetitiva en máquina",
+    desc:"Analiza un histórico de fallos para identificar patrones y causa raíz.",
+    vars:["NOMBRE / REFERENCIA MÁQUINA","PERIODO DE ANÁLISIS","HISTÓRICO DE OTs"],
+    prompt:`Actúa como ingeniero de mantenimiento industrial especializado en maquinaria de empaquetado.
+
+Máquina: [NOMBRE / REFERENCIA MÁQUINA] | Periodo: [PERIODO DE ANÁLISIS]
+
+Histórico de averías:
+[HISTÓRICO DE OTs — fecha, síntoma, acción tomada, tiempo de parada]
+
+Análisis requerido:
+1. Identifica patrones de fallo (frecuencia, componente recurrente, condiciones).
+2. Clasifica fallos por modo: eléctrico, mecánico, neumático, desgaste, operación.
+3. Propón las 3 causas raíz más probables ordenadas por probabilidad.
+4. Indica qué inspecciones confirmarían cada hipótesis.
+5. Recomienda la estrategia de mantenimiento más adecuada.`},
+
+  { id:8, profile:"Mantenimiento", tag:"Planificación",
+    title:"Generar plan de mantenimiento preventivo (PM)",
+    desc:"Crea un plan PM completo y estandarizado para una máquina de línea.",
+    vars:["TIPO DE MÁQUINA","MARCA Y MODELO","Nº TURNOS DIARIOS","AVERÍAS MÁS FRECUENTES"],
+    prompt:`Eres ingeniero de mantenimiento experto en maquinaria de empaquetado industrial.
+
+Máquina:
+- Tipo: [TIPO DE MÁQUINA — ej: termoformadora, flow-pack, etiquetadora]
+- Marca / Modelo: [MARCA Y MODELO]
+- Régimen: [Nº TURNOS DIARIOS] turnos/día
+- Averías frecuentes: [AVERÍAS MÁS FRECUENTES]
+
+Genera el plan PM en formato tabla:
+| Frecuencia | Tarea | Duración estimada | Especialidad | Repuesto asociado |
+
+Incluye gamas: Cada turno / Diario / Semanal / Mensual / Trimestral / Semestral / Anual
+
+Además:
+- Repuestos críticos en stock mínimo.
+- Parámetros clave a monitorizar (rangos de alerta y alarma).`},
+
+  { id:9, profile:"Mantenimiento", tag:"Documentación",
+    title:"Redactar orden de trabajo (OT) de intervención técnica",
+    desc:"Documenta una intervención de mantenimiento de forma estructurada y trazable.",
+    vars:["MÁQUINA","SÍNTOMA DETECTADO","ACCIONES REALIZADAS","REPUESTOS USADOS","TIEMPO TOTAL","ESTADO FINAL"],
+    prompt:`Actúa como técnico de mantenimiento documentando una intervención técnica en planta.
+
+- Máquina: [MÁQUINA]
+- Síntoma: [SÍNTOMA DETECTADO]
+- Acciones realizadas: [ACCIONES REALIZADAS]
+- Repuestos utilizados: [REPUESTOS USADOS]
+- Tiempo total: [TIEMPO TOTAL]
+- Estado final: [ESTADO FINAL]
+
+Redacta la OT con estas secciones:
+1. DESCRIPCIÓN TÉCNICA DE LA AVERÍA
+2. DIAGNÓSTICO Y METODOLOGÍA APLICADA
+3. ACCIONES CORRECTIVAS (paso a paso, con parámetros de ajuste)
+4. MATERIALES Y REPUESTOS UTILIZADOS
+5. OBSERVACIONES Y ANOMALÍAS DETECTADAS
+6. RECOMENDACIONES PARA PRÓXIMAS INTERVENCIONES
+7. ESTADO FINAL Y CRITERIOS DE VALIDACIÓN`},
+
+  { id:10, profile:"Lean / Mejora Continua", tag:"Análisis",
+    title:"Análisis profundo de pérdidas de OEE",
+    desc:"Interpreta datos de OEE e identifica las palancas de mejora de mayor impacto.",
+    vars:["LÍNEA","PERIODO","% Disponibilidad","% Rendimiento","% Calidad","PARADAS REGISTRADAS","HORAS MES"],
+    prompt:`Eres experto en Lean Manufacturing y análisis de OEE en entornos de empaquetado.
+
+Línea: [LÍNEA] | Periodo: [PERIODO] | Horas disponibles: [HORAS MES]
+- Disponibilidad: [% Disponibilidad]
+- Rendimiento: [% Rendimiento]
+- Calidad: [% Calidad]
+- Paradas registradas: [PARADAS REGISTRADAS]
+
+Análisis completo:
+1. Descompón las pérdidas en las 6 grandes pérdidas (Six Big Losses).
+2. Cuantifica horas perdidas por categoría.
+3. Identifica el pilar (D/R/Q) con mayor potencial de mejora.
+4. Propón los 3 proyectos de mejora de mayor ROI con estimación de ganancia en OEE.
+5. Define KPIs de seguimiento para cada proyecto.`},
+
+  { id:11, profile:"Lean / Mejora Continua", tag:"Documentación",
+    title:"Estructurar un A3 de mejora continua",
+    desc:"Genera el esqueleto completo de un A3 Toyota a partir de un problema identificado.",
+    vars:["ÁREA / LÍNEA","DESCRIPCIÓN DEL PROBLEMA","OBJETIVO DE MEJORA","DATOS DISPONIBLES"],
+    prompt:`Eres facilitador de mejora continua con experiencia en metodología A3 Toyota.
+
+- Área / línea: [ÁREA / LÍNEA]
+- Problema: [DESCRIPCIÓN DEL PROBLEMA]
+- Objetivo: [OBJETIVO DE MEJORA]
+- Datos disponibles: [DATOS DISPONIBLES]
+
+Estructura el A3 completo:
+
+SECCIÓN 1 — SITUACIÓN ACTUAL
+→ Descripción con datos cuantitativos + visualización recomendada
+
+SECCIÓN 2 — ANÁLISIS DE CAUSA RAÍZ
+→ Herramienta recomendada + desarrollo + causa raíz probable
+
+SECCIÓN 3 — SITUACIÓN OBJETIVO
+→ KPIs de éxito (SMART) + comparativa actual vs objetivo
+
+SECCIÓN 4 — PLAN DE ACCIÓN
+→ Tabla: Acción | Responsable (rol) | Fecha | Indicador de cierre
+
+SECCIÓN 5 — SEGUIMIENTO
+→ Método + fecha revisión + criterio de éxito`},
+
+  { id:12, profile:"Lean / Mejora Continua", tag:"Comunicación",
+    title:"Presentación de resultados Kaizen para dirección",
+    desc:"Transforma los resultados de un evento Kaizen en una presentación ejecutiva.",
+    vars:["ÁREA","FECHAS DEL EVENTO","PROBLEMA INICIAL","CAMBIOS IMPLEMENTADOS","RESULTADOS"],
+    prompt:`Actúa como ingeniero de mejora continua presentando resultados a comité directivo.
+
+- Área: [ÁREA] | Fechas: [FECHAS DEL EVENTO]
+- Problema inicial: [PROBLEMA INICIAL]
+- Cambios implementados: [CAMBIOS IMPLEMENTADOS]
+- Resultados: [RESULTADOS]
+
+Estructura la presentación ejecutiva (6 slides):
+SLIDE 1 — RESUMEN EJECUTIVO: 3 métricas de impacto (antes → después)
+SLIDE 2 — SITUACIÓN DE PARTIDA: problema e impacto en negocio
+SLIDE 3 — EQUIPO Y METODOLOGÍA
+SLIDE 4 — SOLUCIONES IMPLEMENTADAS (máx. 5 acciones)
+SLIDE 5 — RESULTADOS CUANTITATIVOS + impacto económico estimado
+SLIDE 6 — SOSTENIBILIDAD Y PRÓXIMOS PASOS
+
+Tono directo, orientado a negocio. Sin jerga Lean innecesaria.`},
+
+  { id:13, profile:"Proyectos", tag:"Planificación",
+    title:"Plan de proyecto de industrialización",
+    desc:"Genera fases, hitos, riesgos y decisiones críticas para un proyecto industrial.",
+    vars:["DESCRIPCIÓN DEL PROYECTO","FECHA LÍMITE","RECURSOS DISPONIBLES","RESTRICCIONES"],
+    prompt:`Eres ingeniero de proyectos con experiencia en industrialización de líneas de empaquetado.
+
+- Proyecto: [DESCRIPCIÓN DEL PROYECTO]
+- Fecha límite: [FECHA LÍMITE]
+- Recursos: [RECURSOS DISPONIBLES]
+- Restricciones: [RESTRICCIONES]
+
+Desarrolla el plan completo:
+1. FASES DEL PROYECTO: objetivo, entregables, duración, criterio de cierre por fase.
+2. HITOS CLAVE — Tabla: Hito | Fecha objetivo | Criterio de éxito
+3. ANÁLISIS DE RIESGOS — Top 5: descripción | probabilidad | impacto | mitigación
+4. CAMINO CRÍTICO: dependencias que no pueden retrasarse.
+5. DECISIONES URGENTES en las primeras 2 semanas.`},
+
+  { id:14, profile:"Proyectos", tag:"Documentación",
+    title:"Especificación de requerimientos URS de maquinaria",
+    desc:"Genera un URS completo y verificable para solicitud de oferta a proveedores.",
+    vars:["TIPO DE MÁQUINA","PRODUCTO","FORMATOS","VELOCIDAD","ENTORNO","INTEGRACIONES","NORMATIVAS"],
+    prompt:`Eres ingeniero de proyectos especialista en especificaciones técnicas de maquinaria.
+
+- Tipo de máquina: [TIPO DE MÁQUINA]
+- Producto: [PRODUCTO]
+- Formatos: [FORMATOS]
+- Velocidad objetivo: [VELOCIDAD]
+- Entorno: [ENTORNO]
+- Integraciones: [INTEGRACIONES — SCADA, ERP, MES]
+- Normativas: [NORMATIVAS]
+
+Redacta el URS con:
+1. OBJETIVO Y ALCANCE
+2. REQUISITOS FUNCIONALES (numerados, medibles, verificables)
+3. REQUISITOS TÉCNICOS — Mecánicos | Eléctricos | Control
+4. REQUISITOS DE SEGURIDAD Y NORMATIVA
+5. MANTENIBILIDAD Y DISPONIBILIDAD (MTTR, MTBF, OEE objetivo)
+6. PLAN DE VALIDACIÓN — FAT | SAT
+7. CRITERIOS DE ACEPTACIÓN
+8. DOCUMENTACIÓN REQUERIDA AL PROVEEDOR`},
+
+  { id:15, profile:"Proyectos", tag:"Comunicación",
+    title:"Update ejecutivo para Steering Committee (RAG)",
+    desc:"Redacta un resumen ejecutivo en formato semáforo para comité de dirección.",
+    vars:["NOMBRE PROYECTO","AVANCE REAL VS PLAN","HITOS COMPLETADOS","HITOS EN RIESGO","SITUACIÓN PRESUPUESTARIA"],
+    prompt:`Eres el project manager de un proyecto de ingeniería industrial.
+
+Proyecto: [NOMBRE PROYECTO]
+- Avance real vs plan: [AVANCE REAL VS PLAN]
+- Hitos completados: [HITOS COMPLETADOS]
+- Hitos en riesgo: [HITOS EN RIESGO]
+- Presupuesto: [SITUACIÓN PRESUPUESTARIA]
+
+Update ejecutivo para Steering Committee (máx. 1 página):
+
+ESTADO GENERAL: 🔴 / 🟡 / 🟢 + justificación en una frase
+
+LOGROS DEL PERIODO (máx. 3 bullets)
+
+RIESGOS ACTIVOS
+→ Tabla: Riesgo | Impacto | Mitigación | Propietario
+
+DECISIONES REQUERIDAS
+→ Tabla: Decisión | Impacto si no se toma | Fecha límite
+
+FORECAST PRÓXIMOS HITOS
+→ Tabla: Hito | Fecha prevista | Estado`},
+
+  { id:16, profile:"Supply Chain", tag:"Análisis",
+    title:"Análisis de rotura de stock y plan de contingencia",
+    desc:"Evalúa la criticidad de una rotura y genera un plan de acción inmediato.",
+    vars:["MATERIAL / COMPONENTE","STOCK ACTUAL","CONSUMO DIARIO","DÍAS COBERTURA","PROVEEDOR","PLAZO ENTREGA","LÍNEAS AFECTADAS"],
+    prompt:`Eres ingeniero de supply chain en una planta de empaquetado industrial.
+
+- Material: [MATERIAL / COMPONENTE]
+- Stock actual: [STOCK ACTUAL] | Consumo diario: [CONSUMO DIARIO]
+- Días de cobertura: [DÍAS COBERTURA]
+- Proveedor: [PROVEEDOR] | Plazo de entrega: [PLAZO ENTREGA]
+- Líneas afectadas: [LÍNEAS AFECTADAS]
+
+Análisis completo:
+1. CRITICIDAD: días cobertura vs plazo reaprovisionamiento → nivel de alerta.
+2. IMPACTO: órdenes de producción en riesgo y ventana temporal.
+3. CONTINGENCIA (72h): acciones prioritarias ordenadas por impacto.
+4. PRIORIZACIÓN: cómo distribuir el stock entre líneas/clientes.
+5. ALTERNATIVAS: proveedor alternativo, sustituto, subcontrata.
+6. PREVENCIÓN: cambios en parámetros de reaprovisionamiento para evitar recurrencia.`},
+
+  { id:17, profile:"Supply Chain", tag:"Planificación",
+    title:"Optimización de parámetros de reaprovisionamiento",
+    desc:"Calcula stock de seguridad, punto de pedido y EOQ para un componente crítico.",
+    vars:["NOMBRE COMPONENTE","CONSUMO MEDIO","PLAZO ENTREGA","COSTE UNITARIO","COSTE DE PEDIDO","NIVEL SERVICIO"],
+    prompt:`Eres especialista en planificación de materiales para industria de empaquetado.
+
+Componente: [NOMBRE COMPONENTE]
+- Consumo medio: [CONSUMO MEDIO] unidades/día
+- Lead time: [PLAZO ENTREGA] días
+- Coste unitario: [COSTE UNITARIO] €
+- Coste de pedido: [COSTE DE PEDIDO] €
+- Nivel de servicio objetivo: [NIVEL SERVICIO] %
+
+Calcula y justifica:
+1. STOCK DE SEGURIDAD (SS) — fórmula + resultado
+2. PUNTO DE PEDIDO (ROP) — fórmula + resultado
+3. CANTIDAD ECONÓMICA DE PEDIDO (EOQ)
+4. COSTE TOTAL ANUAL de la política resultante
+5. ANÁLISIS DE SENSIBILIDAD: variable de mayor impacto
+6. RECOMENDACIÓN sobre lead time, frecuencia o lote mínimo`},
+
+  { id:18, profile:"Supply Chain", tag:"Comunicación",
+    title:"Escalada formal a proveedor por incumplimiento",
+    desc:"Redacta una comunicación firme y profesional por retraso o fallo de calidad.",
+    vars:["NOMBRE PROVEEDOR","TIPO DE INCUMPLIMIENTO","IMPACTO EN PLANTA","HISTORIAL PREVIO","NIVEL DE ESCALADA"],
+    prompt:`Eres responsable de supply chain de una planta de empaquetado industrial.
+
+Proveedor: [NOMBRE PROVEEDOR]
+- Incumplimiento: [TIPO DE INCUMPLIMIENTO]
+- Impacto en planta: [IMPACTO EN PLANTA]
+- Historial previo: [HISTORIAL PREVIO]
+- Nivel de escalada: [NIVEL DE ESCALADA — informativo / reclamación formal / sanción]
+
+Redacta la comunicación formal con:
+1. Descripción objetiva del incumplimiento con datos y fechas.
+2. Cuantificación del impacto en nuestra operación.
+3. Requerimientos concretos:
+   → Plan de acción correctivo (fecha límite 48h)
+   → Compromiso de resolución con fecha
+   → Medidas preventivas
+4. Consecuencias si no hay respuesta en el plazo indicado.
+
+Tono: firme y profesional. Preservar relación si el historial lo permite.`},
+];
+
+let selProfile = "Todos", selTag = "Todos", openId = null;
+
+const pColor = id => (PROFILES.find(p=>p.id===id)||{}).color||"#64748b";
+
+function buildProfileTabs() {
+  const el = document.getElementById("profile-tabs");
+  el.innerHTML = "";
+  PROFILES.forEach(p => {
+    const b = document.createElement("button");
+    b.className = "p-tab" + (selProfile===p.id?" active":"");
+    if (selProfile===p.id) { b.style.background=p.color; b.style.borderColor=p.color; }
+    b.innerHTML = `<span class="p-dot" style="background:${p.color}${selProfile===p.id?";opacity:0.6":""}"></span>${p.label}`;
+    b.onclick = () => { selProfile=p.id; buildProfileTabs(); render(); };
+    el.appendChild(b);
+  });
+}
+
+function buildTagPills() {
+  const el = document.getElementById("tag-pills");
+  el.innerHTML = `<span class="tag-label">Tipo</span>`;
+  TAGS.forEach(t => {
+    const b = document.createElement("button");
+    b.className = "t-pill" + (selTag===t?" active":"");
+    b.textContent = t;
+    b.onclick = () => { selTag=t; buildTagPills(); render(); };
+    el.appendChild(b);
+  });
+}
+
+function render() {
+  const q = (document.getElementById("search").value||"").toLowerCase();
+  const filtered = PROMPTS.filter(p => {
+    return (selProfile==="Todos"||p.profile===selProfile) &&
+           (selTag==="Todos"||p.tag===selTag) &&
+           (!q||p.title.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)||p.tag.toLowerCase().includes(q));
+  });
+  document.getElementById("count").innerHTML = `<strong>${filtered.length}</strong> prompt${filtered.length!==1?"s":""} encontrado${filtered.length!==1?"s":""}`;
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>No se encontraron prompts.</p></div>`;
+    return;
+  }
+  filtered.forEach(p => list.appendChild(makeCard(p)));
+}
+
+function makeCard(p) {
+  const color = pColor(p.profile);
+  const ts = TAG_STYLES[p.tag]||{bg:"#f1f5f9",color:"#475569"};
+  const isOpen = openId===p.id;
+  const card = document.createElement("div");
+  card.className = "card"+(isOpen?" open":"");
+  card.style.setProperty("--card-accent", color);
+
+  card.innerHTML = `
+    <div class="card-head">
+      <div class="card-stripe" style="background:${color}"></div>
+      <div class="card-info">
+        <div class="card-meta">
+          <span class="c-profile" style="color:${color}">${p.profile}</span>
+          <span class="c-tag" style="background:${ts.bg};color:${ts.color}">${p.tag}</span>
+        </div>
+        <div class="card-title">${p.title}</div>
+        <div class="card-desc">${p.desc}</div>
+      </div>
+      <span class="card-arrow">▼</span>
+    </div>
+    ${isOpen ? `
+    <div class="card-body">
+      <div class="vars-row">
+        <span class="vars-label">Completar</span>
+        ${p.vars.map(v=>`<span class="v-chip">[ ${v} ]</span>`).join("")}
+      </div>
+      <div class="prompt-box">${hilite(esc(p.prompt))}</div>
+      <button class="btn-copy" id="cp-${p.id}">📋 Copiar prompt</button>
+    </div>` : ""}`;
+
+  card.querySelector(".card-head").onclick = () => { openId=openId===p.id?null:p.id; render(); };
+  if (isOpen) {
+    card.querySelector(`#cp-${p.id}`).onclick = e => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(p.prompt).then(() => {
+        const b = document.getElementById(`cp-${p.id}`);
+        if (b) { b.textContent="✓ Copiado"; b.classList.add("ok"); setTimeout(()=>{b.textContent="📋 Copiar prompt";b.classList.remove("ok");},2000); }
+      });
+    };
+  }
+  return card;
+}
+
+function esc(t) { return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function hilite(t) { return t.replace(/\[([^\]]+)\]/g,'<span class="v-highlight">[$1]</span>'); }
+
+buildProfileTabs();
+buildTagPills();
+render();
+</script>
+</body>
+</html>
